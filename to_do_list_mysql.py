@@ -18,24 +18,6 @@ def db_connection():
 
 		cursor=connection.cursor()
 
-		query="""CREATE TABLE if not exists to_do_list_table1 (
-			     task_id   int AUTO_INCREMENT  PRIMARY KEY,
-			     task_name varchar(255),
-			     status    varchar(255),
-			     category  varchar(255),
-			     completing_date  datetime,
-			     user_id   int
-			      )"""
-
-		cursor.execute(query)
-
-		query="""CREATE TABLE if  not exists user_table(
-        	     user_id    int  PRIMARY KEY ,
-        	     user_name  varchar(255),
-        	     address    varchar(255))"""
-
-		cursor.execute(query)
-
 		return connection
 
 
@@ -43,29 +25,29 @@ def db_connection():
 
 		print("some error occured:",error)
 
-		return "connection not established"
+		return jsonify(error="connection not established"),500
     
 
-@app.route('/to_do_list/<int:usr_id>',methods=["GET"])
+@app.route('/tasks/api/v1/<int:id>',methods=["GET"])
 
-def get_to_do_list(usr_id):
+def get_tasks(id):
 
 	conn=db_connection()
 
 	cur=conn.cursor()
 
-	query="""SELECT * from to_do_list_table1
-	         WHERE user_id=%s"""
+	query="""SELECT * from to_dos
+	         WHERE task_id=%s"""
 
-	cur.execute(query,(usr_id,))
+	cur.execute(query,(id,))
 
 	result=cur.fetchall()
 
-	to_do_list=[
+	to_dos=[
 	           {"task_id":row[0],
 	           "task_name":row[1],
 			    "status":row[2],
-			    "category":row[3],
+			    "category":list(row[3]),
 			    "completing_date":row[4],
 			    "user_id":row[5]
 			   }
@@ -75,40 +57,70 @@ def get_to_do_list(usr_id):
 
 	conn.close()
 
-	return (jsonify(to_do_list))
+	return (jsonify(to_dos)),200
 
-@app.route('/to_do_list/<int:usr_id>',methods=["POST"])
+@app.route('/tasks/api/v1',methods=["GET"])
 
-def insert_task(usr_id):
+def get_all_tasks():
+
+	conn=db_connection()
+
+	cur=conn.cursor()
+
+	query="""SELECT * from to_dos"""
+
+	cur.execute(query)
+
+	result=cur.fetchall()
+
+	to_dos=[
+	           {"task_id":row[0],
+	           "task_name":row[1],
+			    "status":row[2],
+			    "category":list(row[3]),
+			    "completing_date":row[4],
+			    "user_id":row[5]
+			   }
+			   for row in result]
+
+	cur.close()
+
+	conn.close()
+
+	return (jsonify(to_dos)),200
+
+@app.route('/tasks/api/v1',methods=["POST"])
+
+def insert_task():
 
 	conn=db_connection()
 
 	cursor=conn.cursor()
 
-	query=""" INSERT INTO to_do_list_table1
+	query=""" INSERT INTO to_dos
 	          (task_name,status,category,completing_date,user_id)
 	          VALUES(%s,%s,%s,%s,%s)"""
 
 
 	status_options=["due","completed"]
-
-
 	category_options=["finance","accounting","health","gardening","studying"]
 
 	task_name=request.form["task_name"]
 	status=request.form["status"]
 	category=request.form["category"]
 	completing_date=request.form["completing_date"]
+	user_id=request.form["user_id"]
 
-
+    
 
 	if status not in status_options:
-		return "this status option not avaliable,please enter valid status in form options avaliable : due , completed"
+		return jsonify("this status option not avaliable,please enter valid status in form options avaliable : due , completed"),400
 
-	if category not in category_options:
-		return "this category option not avaliable in form ,please enter valid category in form options avaliable :finance,accounting,health,gardening,studying"
+	for item in (category.split(",")) :
+		if item not in category_options:
+			return jsonify("this category option not avaliable,please enter valid category in form options avaliable"),400               
 
-	cursor.execute(query,(task_name,status,category,completing_date,usr_id))
+	cursor.execute(query,(task_name,status,category,completing_date,user_id))
 
 	conn.commit()
 
@@ -121,70 +133,56 @@ def insert_task(usr_id):
 	              "status":status,
 	              "category":category,
 	              "completing_date":completing_date,
-	              "user_id":usr_id
+	              "user_id":user_id
 	              }
 
-	return jsonify(updated_list)
+	return jsonify(updated_list),201
 
-@app.route("/to_do_list/<int:usr_id>/<int:id>",methods=["DELETE"])
+@app.route("/tasks/api/v1/<int:id>",methods=["DELETE"])
 
-def delete_task(usr_id,id):
+def delete_task(id):
 
 	conn=db_connection()
 
 	cursor=conn.cursor()
 
-	query="""SELECT user_id from to_do_list_table1
-	         where user_id=%s"""
+	query="""SELECT task_id from to_dos
+	         where task_id=%s"""
     
-	cursor.execute(query,(usr_id,))
+	cursor.execute(query,(id,))
 
 	result=cursor.fetchone()
 
 	if result is not None:
 
-		query="""SELECT task_id from to_do_list_table1
-		         where task_id=%s and user_id=%s"""
+		query="""DELETE FROM to_dos
+		         where task_id=%s"""
 
-		cursor.execute(query,(id,usr_id))
+		cursor.execute(query,(id,))
 
-		result=cursor.fetchone()
+		conn.commit()
 
-		print(result)
+		cursor.close()
 
-		if result is not None:
+		conn.close()
 
-			query="""DELETE FROM to_do_list_table1
-			         where user_id=%s and task_id=%s"""
-
-			cursor.execute(query,(usr_id,id))
-
-			conn.commit()
-
-			cursor.close()
-
-			conn.close()
-
-			return "task with task_id {} for user with user_id {} deleted from to_do_list ".format(id,usr_id)
-
-		else:
-			return "task with task_id {} for user_id {} doen't exist".format(id,usr_id)
+		return jsonify("task with task_id {} deleted from to_do_list ".format(id)),200
 
 	cursor.close()
 
 	conn.close()
 
-	return "task with task_id for given user_id doesn't exist in your to_do_list"
+	return jsonify("task with task_id doesn't exist in your to_do_list"),404
 
-@app.route("/to_do_list/<int:usr_id>/<int:id>",methods=["PATCH"])
+@app.route("/tasks/api/v1/<int:usr_id>/<int:id>",methods=["PATCH"])
 
-def update_task(usr_id,id):
+def update_task(user_id,id):
 
 	conn=db_connection()
 
 	cursor=conn.cursor()
 
-	query="""SELECT user_id from to_do_list_table1
+	query="""SELECT user_id from to_dos
 	         where user_id=%s"""
 
 	cursor.execute(query,(usr_id,))
@@ -193,7 +191,7 @@ def update_task(usr_id,id):
 
 	if result is not None:
 
-		query="""SELECT task_id from to_do_list_table1
+		query="""SELECT task_id from to_dos
 		         where task_id=%s and user_id=%s"""
 
 		cursor.execute(query,(id,usr_id))
@@ -206,7 +204,7 @@ def update_task(usr_id,id):
 
 			if task_name:
 
-				query="""UPDATE to_do_list_table1 SET 
+				query="""UPDATE to_dos SET 
 				         task_name=%s
 				         WHERE user_id=%s and task_id=%s"""
 
@@ -225,7 +223,7 @@ def update_task(usr_id,id):
 
 			if status:
 
-				query="""UPDATE to_do_list_table1 SET 
+				query="""UPDATE to_dos SET 
 				         status=%s
 				         WHERE user_id=%s and task_id=%s"""
 
@@ -248,7 +246,7 @@ def update_task(usr_id,id):
 	else:
 		return "user id {} not exist".format(usr_id)
 
-@app.route('/user_list',methods=["GET"])
+@app.route('/users/api/v1',methods=["GET"])
 
 def get_user_info():
 
@@ -256,7 +254,7 @@ def get_user_info():
 
 	cur=conn.cursor()
 
-	query="""SELECT * from user_table"""
+	query="""SELECT * from users"""
 
 	cur.execute(query)
 
@@ -275,7 +273,7 @@ def get_user_info():
 
 	return jsonify(user_information)
 
-@app.route("/user_list",methods=["POST"])
+@app.route("/users/api/v1",methods=["POST"])
 
 def insert_user_info():
 
@@ -283,7 +281,7 @@ def insert_user_info():
 
 	cursor=conn.cursor()
 
-	query="""INSERT INTO user_table 
+	query="""INSERT INTO users 
 	         (user_id,user_name,address)
 	         VALUES(%s,%s,%s)"""
 
@@ -307,7 +305,7 @@ def insert_user_info():
 
 	return jsonify(user_list)
 
-@app.route("/user_list/<int:usr_id>",methods=["PATCH"])
+@app.route("/users/api/v1/<int:usr_id>",methods=["PATCH"])
 
 def user_info_update(usr_id):
 
@@ -315,7 +313,7 @@ def user_info_update(usr_id):
 
 	cur=conn.cursor()
 
-	query="""UPDATE user_table 
+	query="""UPDATE users
 	         SET address=%s
 	         WHERE user_id=%s"""
 
