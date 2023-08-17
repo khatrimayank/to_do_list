@@ -1,4 +1,5 @@
 import mysql.connector
+from flask import jsonify
 
 conn=mysql.connector.connect(
 	 host="localhost",
@@ -39,19 +40,19 @@ def db_connection():
 
 		query="""CREATE TABLE if not exists to_dos (
 			     task_id   int AUTO_INCREMENT  PRIMARY KEY,
-			     task_name varchar(255),
-			     status    VARCHAR(255),
-			     category  SET("finance","accounting","health","gardening","studying"),
-			     completing_date  datetime,
-			     user_id   int
+			     task_name varchar(255) NOT NULL,
+			     status    VARCHAR(255) NOT NULL,
+			     category  SET("finance","accounting","health","gardening","studying") NOT NULL,
+			     completing_date  datetime  NOT NULL,
+			     user_id   int,FOREIGN KEY (user_id) REFERENCES to_dos(user_id)
 			      )"""
 
 		cursor.execute(query)
 
 		query="""CREATE TABLE if  not exists users(
         	     user_id    int  PRIMARY KEY ,
-        	     user_name  varchar(255),
-        	     address    varchar(255))"""
+        	     user_name  varchar(255) NOT NULL,
+        	     address    varchar(255) NOT NULL)"""
 
 		cursor.execute(query)
 

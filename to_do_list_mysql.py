@@ -33,7 +33,7 @@ def validate_user_id(user_id):
 
 	cursor=conn.cursor()
 
-	query="""SELECT user_id from to_dos
+	query="""SELECT user_id from users
 	         WHERE user_id=%s"""
 
 	cursor.execute(query,(user_id,))
@@ -83,12 +83,12 @@ def get_tasks(id):
 	res=validate_user_id(user_id)
 
 	if res is None:
-		return jsonify("authentication error:user id not exist"),401
+		return jsonify("authentication error:user id {} not exist".format(user_id)),401
 
 	res=validate_task_id(id,user_id)
 
 	if res is None:
-		return jsonify("Not Found error:task id not fond"),404
+		return jsonify("Not Found error:task id {} not fond".format(id)),404
 
 	cur.execute(query,(id,user_id))
 
@@ -127,7 +127,7 @@ def get_all_tasks():
 	res=validate_user_id(user_id)
 
 	if not res:
-		return jsonify("authentication error:user id not exist"),401
+		return jsonify("authentication error:user id {} not exist".format(user_id)),401
 
 	cur.execute(query,(user_id,))
 
@@ -172,15 +172,15 @@ def insert_task():
 	completing_date=request.form["completing_date"]
 
 	if status not in status_options:
-		return jsonify("this status option not avaliable,please enter valid status in form options avaliable : due , completed"),400
+		return jsonify("this status option :{} not avaliable,please enter valid status in form , options avaliable : due , completed".format(status)),400
 
 	if len(category.split(","))!=0:
 		for item in (category.split(",")) :
 			if item not in category_options:
-				return jsonify("this category option not avaliable,please enter valid category in form options avaliable"),400               
+				return jsonify("this category option :{} not avaliable,please enter valid category in form options avaliable".format(item)),400               
 
 	else:
-		return jsonify("this category option not avaliable,please enter valid category in form options avaliable"),400
+		return jsonify("this category option :{} not avaliable,please enter valid category in form options avaliable".format(category)),400
 
 	cursor.execute(query,(task_name,status,category,completing_date,user_id))
 
@@ -213,12 +213,12 @@ def delete_task(id):
 	res=validate_user_id(user_id)
 
 	if not user_id:
-		return jsonify("authentication error:user_id not exists"),401
+		return jsonify("authentication error:user_id {} not exists".format(user_id)),401
 
 	res=validate_task_id(id,user_id)
 
 	if not res: 
-		return jsonify("data not found:for given user id,task id not found"),404
+		return jsonify("data not found:for given user id {} task id {} not found".format(user_id,id)),404
 
 
 	query="""DELETE FROM to_dos
@@ -247,46 +247,57 @@ def update_task(id):
 	res=validate_user_id(user_id)
 
 	if not res:
-		return jsonify("authentication error:user_id not exists"),401
+		return jsonify("authentication error:user_id {} not exists".format(user_id)),401
 
 	res=validate_task_id(id,user_id)
 
 	if not res:
-		return jsonify("data not found:for given user id,task id not found"),404
+		return jsonify("data not found:for given user id {} task id {} not found".format(user_id,id)),404
 
-	task_name=request.form.get("task_name",default="")
+	
+	new_task_name=request.form.get("task_name",default="")
 
-	if task_name:
-		query="""UPDATE to_dos SET 
-		         task_name=%s
-		         WHERE user_id=%s and task_id=%s"""
+	new_status=request.form.get("status",default="")
 
-		cursor.execute(query,(task_name,user_id,id))
+	new_category=request.form.get("category",default="")
 
-		conn.commit()
+	new_completing_date=request.form.get("completing_date",default="")
 
-		cursor.close()
+	query="UPDATE to_dos SET"
 
-		conn.close()
+	param=[]
 
-		return jsonify("task updated:task_name for given task_id and user_id updated"),201
+	if new_task_name:
+		query+=" task_name=%s,"
+		param.append(new_task_name)
 
-		status=request.form.get("status",default="")
+	if new_status:
+		query+=" status=%s,"
+		param.append(new_status)
 
-		if status:
-			query="""UPDATE to_dos SET 
-			         status=%s
-			         WHERE user_id=%s and task_id=%s"""
+	if new_category:
+		query+=" category=%s,"
+		param.append(new_category)
 
-			cursor.execute(query,(status,user_id,id))
+	if new_completing_date:
+		query+=" completing_date=%s"
+		param.append(new_completing_date)
 
-			conn.commit()
+	query=query+" WHERE task_id=%s and user_id=%s"
 
-			cursor.close()
+	param.append(id)
 
-			conn.close()
+	param.append(user_id)
 
-			return jsonify("task updated:status for given task_id and user_id updated"),201
+	cursor.execute(query,param)
+
+	conn.commit()
+
+	cursor.close()
+
+	conn.close()
+
+	return jsonify("task updated with new task_name {}, new status {}, new category {}, new completing_date {},for given task_id {} and user_id {} updated".format(new_task_name,new_status,new_category,new_completing_date,id,user_id)),201
 
 @app.route('/users/api/v1',methods=["GET"])
 
@@ -327,13 +338,13 @@ def insert_user_info():
 	         (user_id,user_name,address)
 	         VALUES(%s,%s,%s)"""
 
-	user_id=request.form["user_id"]
+	user_id=request.headers.get("user_id")
 
 	user_name=request.form["user_name"]
 
 	address=request.form["address"]
 
-	cursor.execute(query,(user_id,user_name,address))
+	cursor.execute(query,[user_id,user_name,address])
 
 	user_list={"user_id":user_id,
 	           "user_name":user_name,
@@ -355,25 +366,28 @@ def user_info_update(usr_id):
 
 	cur=conn.cursor()
 
-	query="""UPDATE users
-	         SET address=%s
-	         WHERE user_id=%s"""
-
-	user_address=request.form.get("address",default="")
+	user_address=request.form.get("address")
 
 	user_id=usr_id
 
 	query="""SELECT user_id from users
 	         WHERE user_id=%s"""
-
-	cur.execute(query,(usr_id))
+    
+	cur.execute(query,(usr_id,))
 
 	res=cur.fetchone()
 
 	if not res:
-		return jsonify("not found error:user id not found"),404
+		return jsonify("not found error:user id {} not found".format(user_id)),404
 
-	cur.execute(query,(address,user_id))
+	if user_address is None:
+		print(user_address)
+		return jsonify("please enter valid address"),404
+
+	query="""UPDATE users
+	         SET address=%s
+	         WHERE user_id=%s"""
+	cur.execute(query,(user_address,user_id))
 
 	conn.commit()
 
@@ -381,7 +395,7 @@ def user_info_update(usr_id):
 
 	conn.close()
 
-	return jsonify("user_info updated:address updated"),201
+	return jsonify("user_info updated:address for user id {} updated".format(user_id)),201
 
 
 if __name__=="__main__":
