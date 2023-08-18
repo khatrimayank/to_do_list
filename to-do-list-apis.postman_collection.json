@@ -1,0 +1,422 @@
+{
+	"info": {
+		"_postman_id": "7f3bf3ec-afa8-4446-b493-b145ddb3a7d2",
+		"name": "to-do-list-apis",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "27014605"
+	},
+	"item": [
+		{
+			"name": "127.0.0.1:5000/tasks/api/v1/3",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "user_id",
+						"value": "1",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "127.0.0.1:5000/tasks/api/v1",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"tasks",
+						"api",
+						"v1"
+					]
+				},
+				"description": "for getting to-do tasks using task_id and user_id in header"
+			},
+			"response": []
+		},
+		{
+			"name": "127.0.0.1:5000/tasks/api/v1",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "user_id",
+						"value": "1",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "task_name",
+							"value": "buy shares of yes bank",
+							"type": "text"
+						},
+						{
+							"key": "status",
+							"value": "due",
+							"type": "text"
+						},
+						{
+							"key": "category",
+							"value": "finance",
+							"type": "text"
+						},
+						{
+							"key": "completing_date",
+							"value": "2023-08-18 10:00:00",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "127.0.0.1:5000/tasks/api/v1/3",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"tasks",
+						"api",
+						"v1",
+						"3"
+					]
+				},
+				"description": "to get tasks for user_id in header"
+			},
+			"response": []
+		},
+		{
+			"name": "127.0.0.1:5000/tasks/api/v1",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "user_id",
+						"value": "1",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "task_name",
+							"value": "buy shares of yes bank",
+							"type": "text"
+						},
+						{
+							"key": "status",
+							"value": "due",
+							"type": "text"
+						},
+						{
+							"key": "category",
+							"value": "finance",
+							"type": "text"
+						},
+						{
+							"key": "completing_date",
+							"value": "2023-08-18 10:00:00",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "127.0.0.1:5000/tasks/api/v1",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"tasks",
+						"api",
+						"v1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "127.0.0.1:5000/tasks/api/v1",
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "user_id",
+						"value": "4",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "task_name",
+							"value": "",
+							"type": "text"
+						},
+						{
+							"key": "status",
+							"value": "completing",
+							"type": "text"
+						},
+						{
+							"key": "category",
+							"value": "studying",
+							"type": "text"
+						},
+						{
+							"key": "completing_date",
+							"value": "2023-08-19 17:00:00",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "127.0.0.1:5000/tasks/api/v1/5",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"tasks",
+						"api",
+						"v1",
+						"5"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "127.0.0.1:5000/users/api/v1",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "user_id",
+						"value": "3",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "task_name",
+							"value": "sell shares of lic",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "status",
+							"value": "completed",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "category",
+							"value": "finance",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "completing_date",
+							"value": "2023-08-18 10:00:00",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "user_name",
+							"value": "sonu",
+							"type": "text"
+						},
+						{
+							"key": "address",
+							"value": "jaipur",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "127.0.0.1:5000/users/api/v1",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"users",
+						"api",
+						"v1"
+					]
+				},
+				"description": "get all users data"
+			},
+			"response": []
+		},
+		{
+			"name": "127.0.0.1:5000/users/api/v1",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "user_id",
+						"value": "3",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "task_name",
+							"value": "sell shares of lic",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "status",
+							"value": "completed",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "category",
+							"value": "finance",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "completing_date",
+							"value": "2023-08-18 10:00:00",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "user_name",
+							"value": "sonu",
+							"type": "text"
+						},
+						{
+							"key": "address",
+							"value": "jaipur",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "127.0.0.1:5000/users/api/v1",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"users",
+						"api",
+						"v1"
+					]
+				},
+				"description": "get all users data"
+			},
+			"response": []
+		},
+		{
+			"name": "127.0.0.1:5000/users/api/v1",
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "user_id",
+						"value": "1",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "task_name",
+							"value": "sell shares of lic",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "status",
+							"value": "completed",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "category",
+							"value": "finance",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "completing_date",
+							"value": "2023-08-18 10:00:00",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "user_name",
+							"value": "mayank",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "address",
+							"value": "bikaner",
+							"type": "text"
+						},
+						{
+							"key": "user_id",
+							"value": "3",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "127.0.0.1:5000/users/api/v1/1",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"users",
+						"api",
+						"v1",
+						"1"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
