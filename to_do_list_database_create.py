@@ -56,6 +56,10 @@ def db_connection():
 
 		cursor.execute(query)
 
+		query="""CREATE INDEX index_iser_id ON to_dos (user_id)"""
+
+		cursor.execute(query)
+
 		return connection
 
 
